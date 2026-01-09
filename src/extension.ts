@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
-import { openTerminalWithClaude } from './terminalLauncher';
+import { openTerminalWithClaude, activateTerminal } from './terminalLauncher';
+
+// 既に開いたワークスペースパスを追跡
+const openedWorkspaces = new Set<string>();
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Open Terminal Claude extension is now active');
@@ -18,7 +21,14 @@ export function activate(context: vscode.ExtensionContext) {
         const workspacePath = workspaceFolder.uri.fsPath;
 
         try {
-            await openTerminalWithClaude(terminalApp, workspacePath, autoRunClaude);
+            if (openedWorkspaces.has(workspacePath)) {
+                // 既に開いているプロジェクト → ターミナルをアクティブにするだけ
+                await activateTerminal(terminalApp);
+            } else {
+                // 新しいプロジェクト → 新しいウィンドウを開く
+                await openTerminalWithClaude(terminalApp, workspacePath, autoRunClaude);
+                openedWorkspaces.add(workspacePath);
+            }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Failed to open terminal: ${errorMessage}`);

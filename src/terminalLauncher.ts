@@ -16,34 +16,20 @@ const terminalConfigs: Record<TerminalApp, TerminalConfig> = {
         appName: 'Ghostty',
         bundleId: 'com.mitchellh.ghostty',
         getScript: (workspacePath: string, command: string) => `
-            set needsCommand to false
-            tell application "System Events"
-                if not (exists process "Ghostty") then
-                    set needsCommand to true
-                else
-                    tell process "Ghostty"
-                        if (count of windows) = 0 then
-                            set needsCommand to true
-                        end if
-                    end tell
-                end if
-            end tell
             tell application "Ghostty"
                 activate
             end tell
-            if needsCommand then
-                delay 0.5
-                tell application "System Events"
-                    tell process "Ghostty"
-                        if (count of windows) = 0 then
-                            keystroke "n" using command down
-                            delay 0.5
-                        end if
-                    end tell
-                    keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
-                    keystroke return
+            delay 0.3
+            tell application "System Events"
+                tell process "Ghostty"
+                    keystroke "n" using command down
                 end tell
-            end if
+            end tell
+            delay 0.5
+            tell application "System Events"
+                keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
+                keystroke return
+            end tell
         `
     },
     iTerm: {
@@ -52,12 +38,10 @@ const terminalConfigs: Record<TerminalApp, TerminalConfig> = {
         getScript: (workspacePath: string, command: string) => `
             tell application "iTerm"
                 activate
-                if (count of windows) = 0 then
-                    create window with default profile
-                    tell current session of current window
-                        write text "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
-                    end tell
-                end if
+                create window with default profile
+                tell current session of current window
+                    write text "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
+                end tell
             end tell
         `
     },
@@ -67,9 +51,7 @@ const terminalConfigs: Record<TerminalApp, TerminalConfig> = {
         getScript: (workspacePath: string, command: string) => `
             tell application "Terminal"
                 activate
-                if (count of windows) = 0 then
-                    do script "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
-                end if
+                do script "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
             end tell
         `
     },
@@ -77,100 +59,66 @@ const terminalConfigs: Record<TerminalApp, TerminalConfig> = {
         appName: 'Warp',
         bundleId: 'dev.warp.Warp-Stable',
         getScript: (workspacePath: string, command: string) => `
-            set needsCommand to false
-            tell application "System Events"
-                if not (exists process "Warp") then
-                    set needsCommand to true
-                else
-                    tell process "Warp"
-                        if (count of windows) = 0 then
-                            set needsCommand to true
-                        end if
-                    end tell
-                end if
-            end tell
             tell application "Warp"
                 activate
             end tell
-            if needsCommand then
-                delay 0.5
-                tell application "System Events"
-                    keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
-                    keystroke return
+            delay 0.3
+            tell application "System Events"
+                tell process "Warp"
+                    keystroke "n" using command down
                 end tell
-            end if
+            end tell
+            delay 0.5
+            tell application "System Events"
+                keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
+                keystroke return
+            end tell
         `
     },
     Alacritty: {
         appName: 'Alacritty',
         bundleId: 'org.alacritty',
         getScript: (workspacePath: string, command: string) => `
-            set needsCommand to false
-            tell application "System Events"
-                if not (exists process "Alacritty") then
-                    set needsCommand to true
-                else
-                    tell process "Alacritty"
-                        if (count of windows) = 0 then
-                            set needsCommand to true
-                        end if
-                    end tell
-                end if
-            end tell
             tell application "Alacritty"
                 activate
             end tell
-            if needsCommand then
-                delay 0.5
-                tell application "System Events"
-                    keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
-                    keystroke return
+            delay 0.3
+            tell application "System Events"
+                tell process "Alacritty"
+                    keystroke "n" using command down
                 end tell
-            end if
+            end tell
+            delay 0.5
+            tell application "System Events"
+                keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
+                keystroke return
+            end tell
         `
     },
     Kitty: {
         appName: 'kitty',
         bundleId: 'net.kovidgoyal.kitty',
         getScript: (workspacePath: string, command: string) => `
-            set needsCommand to false
-            tell application "System Events"
-                if not (exists process "kitty") then
-                    set needsCommand to true
-                else
-                    tell process "kitty"
-                        if (count of windows) = 0 then
-                            set needsCommand to true
-                        end if
-                    end tell
-                end if
-            end tell
             tell application "kitty"
                 activate
             end tell
-            if needsCommand then
-                delay 0.5
-                tell application "System Events"
-                    keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
-                    keystroke return
+            delay 0.3
+            tell application "System Events"
+                tell process "kitty"
+                    keystroke "n" using command down
                 end tell
-            end if
+            end tell
+            delay 0.5
+            tell application "System Events"
+                keystroke "cd ${escapeForAppleScript(workspacePath)}${command ? ` && ${command}` : ''}"
+                keystroke return
+            end tell
         `
     }
 };
 
 function escapeForAppleScript(str: string): string {
     return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}
-
-async function isAppRunning(bundleId: string): Promise<boolean> {
-    try {
-        const script = `tell application "System Events" to (name of processes) contains "${bundleId.split('.').pop()}"`;
-        const { stdout } = await execAsync(`osascript -e '${script}'`);
-        return stdout.trim() === 'true';
-    } catch {
-        return false;
-    }
 }
 
 async function runAppleScript(script: string): Promise<void> {
@@ -191,6 +139,22 @@ export async function openTerminalWithClaude(
 
     const command = autoRunClaude ? 'claude' : '';
     const script = config.getScript(workspacePath, command);
+
+    await runAppleScript(script);
+}
+
+export async function activateTerminal(terminalApp: string): Promise<void> {
+    const config = terminalConfigs[terminalApp as TerminalApp];
+
+    if (!config) {
+        throw new Error(`Unsupported terminal app: ${terminalApp}`);
+    }
+
+    const script = `
+        tell application "${config.appName}"
+            activate
+        end tell
+    `;
 
     await runAppleScript(script);
 }
