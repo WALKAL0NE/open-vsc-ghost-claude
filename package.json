@@ -1,0 +1,80 @@
+{
+  "name": "open-terminal-claude",
+  "displayName": "Open Terminal with Claude Code",
+  "description": "Open your preferred terminal app and launch Claude Code automatically",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "openTerminalClaude.open",
+        "title": "Open Terminal with Claude Code",
+        "icon": {
+          "light": "resources/icon-light.svg",
+          "dark": "resources/icon-dark.svg"
+        }
+      }
+    ],
+    "configuration": {
+      "title": "Open Terminal Claude",
+      "properties": {
+        "openTerminalClaude.terminalApp": {
+          "type": "string",
+          "default": "Ghostty",
+          "enum": [
+            "Ghostty",
+            "iTerm",
+            "Terminal",
+            "Warp",
+            "Alacritty",
+            "Kitty"
+          ],
+          "enumDescriptions": [
+            "Ghostty terminal emulator",
+            "iTerm2 terminal emulator",
+            "macOS built-in Terminal.app",
+            "Warp terminal",
+            "Alacritty terminal emulator",
+            "Kitty terminal emulator"
+          ],
+          "description": "Select the terminal application to use"
+        },
+        "openTerminalClaude.autoRunClaudeCode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically run 'claude' command when terminal opens"
+        }
+      }
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "openTerminalClaude.open",
+          "group": "navigation",
+          "when": "true"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}
